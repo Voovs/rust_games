@@ -9,8 +9,10 @@ struct tileOnGrid {
 }
 
 fn main() {
-    let mut (pO_score, pX_score, is_pX_turn) = (0, 0, true);
-    let winning_score = setup_and_welcome();
+    let mut (pO_score, pX_score, is_pX_turn, ) = (0, 0, true);
+
+    const WINNING_SCORE = setup_and_welcome();
+
     let mut tile_positions = tileOnGrid {
             o_upper: "2A",
             o_lower: "4A",
@@ -18,18 +20,20 @@ fn main() {
             x_lower: "3D",
         };
 
-    while pO_score != winning_score && pX_score != winning_score {
-        let mut player_move: String = "az";//Get player's move
+    while pO_score != WINNING_SCORE && pX_score != WINNING_SCORE {
+        let mut player_move = String::new();
+
+        io::stdin().read_line(&mut player_move)
+        .expect("Player's move caused an error");
 
         if is_legal_move(player_move) {
-            print_map(player_move);
+            let mut (pO_score, pX_score) = check_for_point(&tile_positions, pO_score, pX_score, is_pX_turn);
 
-            if is_player_point {
-                match is_pX_turn {
-                    true => pX_score += 1,
-                    false => pO_score += 1,
-                }
-            }
+            if
+
+            tile_positions = update_tile_pos(player_move, &mut tile_positions);
+
+            print_map(&tile_positions);
 
             is_pX_turn = !is_pX_turn;
         } else {
@@ -37,40 +41,43 @@ fn main() {
         }
     }
 
-    if pO_score == winning_score && pX_score != winning_score {
-        println!("Player O wins with a score of {}", winning_score);
-    } else if pX_score == winning_score && pX_score != winning_score{
-        println!("Player X wins with a score of {}", winning_score);
-    } else {
-        println!("Sorry, however something errored out");
-        println!("Try restarting the game file with Ctrl + C,");
-    }
+     if announce_win_and_reset(pO_score, pX_score) {
+         main();
+     }
 }
 
+/* Instructions and WINNING_SCORE
+ * Return: u8 (WINNING_SCORE)
+ */
 fn setup_and_welcome () -> u8 {
     println!("Welcome to ---");
     println!("Let's start with some simple setup");
     println!("The rules are pretty simple, try to get your tiles to the opposing end row. Each tile in the end row gives you a point!");
-
-
     println!("Now choose how many points your game will go up to (max is 10):");
-    let winning_score = set_winning_score();
 
-    while !( 0 < winning_score <= 11){
-        println!("Please try setting the score again. Remember the highest score can be 10 and lowest 1. The score must be an integer")
-        winning_score = set_winning_score();
-    }
+    const WINNING_SCORE = set_winning_score();
 
-
+    return WINNING_SCORE;
 }
 
+/* User input for winning_score
+ * Return: u8 (winning_score)
+ */
 fn set_winning_score () -> u8 {
-    let winning_score = ;//user input
-    if 0 < winning_score < 11 && TypeId::of::winning_score == TypeId::of::<String>() {
-        println!("First to {} wins!", winning_score);
-        return winning_score;
+    let mut winning_score = String::new();
+
+    io::stdin().read_line(&mut winning_score)
+    .expect("The input step failed");
+
+    const WINNING_SCORE: u8 = winning_score.parse().unwrap();
+
+    if 0 < WINNING_SCORE < 11 { // && TypeId::of::winning_score == TypeId::of::<u8>()
+        println!("First to {} wins!", WINNING_SCORE);
+
+        return WINNING_SCORE;
     } else {
         println!("That value doesn't work. Please make sure your winning score is 1-10 and is an integer:");
+
         return set_winning_score();
     }
 }
@@ -79,16 +86,55 @@ fn is_legal_move (move) -> bool {
 
 }
 
-fn update_tile_pos (move) {
+/* Updates and returns score
+ * Return: () (score of player O, score of player X)
+ */
+fn check_for_point (tile_positions, pO_score, pX_score, is_pX_turn) -> () {
+    match is_pX_turn {
+        true => {
+            if tile_positions.x_upper[0] == "A" {
+                pX_score += 1
+
+            } else if tile_positions.x_lower[0] == "A"{
+
+            }
+        },
+        false => {
+            if tile_positions.o_upper[0] == "D" || tile_positions.o_lower[0] == "D" {
+                pO_score += 1
+            }
+        },
+    }
+    return (pO_score, pX_score)
+}
+
+fn update_tile_pos (move, tile_positions) -> struct {
 
 }
 
-fn is_player_point (tile_positions) -> bool {
-
-}
 
 fn print_map (tile_positions) {
 
+}
+
+/* Prints win and returns true if restart is chosen
+ * Return: bool (true for game restart)
+ */
+fn announce_win_and_reset (pO_score, pX_score) -> bool {
+    if pO_score == winning_score && pX_score != winning_score {
+        println!("Player O wins with a score of {}", winning_score);
+    } else if pX_score == winning_score && pX_score != winning_score{
+        println!("Player X wins with a score of {}", winning_score);
+    } else {
+        println!("Sorry, however something errored out");
+        println!("Try restarting the game file with Ctrl + C");
+    }
+    // delay
+    let play_again: bool = false;
+
+    // Let player select yes or no
+
+    return play_again
 }
 
 
