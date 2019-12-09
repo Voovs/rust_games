@@ -1,201 +1,246 @@
-use std::io;
-use typename::TypeName;
+#[allow(dead_code)]
+mod party_events {
+    extern crate rand;
+    // use std::io;
+    use rand::{ thread_rng, Rng };
 
-struct tileOnGrid {
-    o_upper: &str,
-    o_lower: &str,
-    x_upper: &str,
-    x_lower: &str,
-}
 
-fn main() {
-    let mut (pO_score, pX_score, is_pX_turn, ) = (0, 0, true);
+    enum InterruptionAtParty {
+        GlassShatter,
+        PedroWalksIn,
+        TechnicalDifficulties,
+        SpillPunch,
+        Heist(u8),
+        BrennanaPeel{ x: u8, y: u8 },
+    }
 
-    const WINNING_SCORE = setup_and_welcome();
 
-    let mut tile_positions = tileOnGrid {
-            o_upper: "2A",
-            o_lower: "4A",
-            x_upper: "1D",
-            x_lower: "3D",
-        };
+    type PartyInter = InterruptionAtParty;
 
-    while pO_score != WINNING_SCORE && pX_score != WINNING_SCORE {
-        let mut player_move = String::new();
 
-        io::stdin().read_line(&mut player_move)
-        .expect("Player's move caused an error");
+    pub fn main() {
+        type Pi = PartyInter;
 
-        if is_legal_move(player_move) {
-            let mut (pO_score, pX_score) = check_for_point(&tile_positions, pO_score, pX_score, is_pX_turn);
-
-            if
-
-            tile_positions = update_tile_pos(player_move, &mut tile_positions);
-
-            print_map(&tile_positions);
-
-            is_pX_turn = !is_pX_turn;
+        if let Some(p) = new_party_event() {
+            match p {
+                Pi::GlassShatter => { println!("Was it surprise or carelessness that turned the floor sinister with glistening sharpness? We don't know and won't stay long enough to find out") },
+                Pi::PedroWalksIn => { println!("It becomes hard to breath. A heavy white fog rolls out from the doorway. Is it just me or is it getting hot in here? Pedro has just walked in") },
+                Pi::TechnicalDifficulties => { println!("The lights suddenly blow out. By the time they come back on, everyone is ready to leave") },
+                Pi::SpillPunch => { println!("Carrying a bowl of punch, ") },
+                Pi::Heist(time) => { println!("At {}h, on the dot, a heist party takes the party hostage. Maybe next time don't hold parties right below a bank", time) },
+                Pi::BrennanaPeel{ x: w, y: e } => { println!("There was a Brennana peel on the floor {}m from the door and {}m down the corridor", w, e) },
+            }
         } else {
-            println!("That move could not be completed. Please replay your turn");
+            println!("Disaster has been avoided. The party goes as expected");
         }
     }
 
-     if announce_win_and_reset(pO_score, pX_score) {
-         main();
-     }
-}
 
-/* Instructions and WINNING_SCORE
- * Return: u8 (WINNING_SCORE)
- */
-fn setup_and_welcome () -> u8 {
-    println!("Welcome to ---");
-    println!("Let's start with some simple setup");
-    println!("The rules are pretty simple, try to get your tiles to the opposing end row. Each tile in the end row gives you a point!");
-    println!("Now choose how many points your game will go up to (max is 10):");
+    fn new_party_event() -> Option<PartyInter> {
+        let mut rng = thread_rng();
 
-    const WINNING_SCORE = set_winning_score();
+        let event_num = rng.gen_range(1, 11);
+        let modifier_num = rng.gen_range(1, 25);
 
-    return WINNING_SCORE;
-}
+        let event: Option<PartyInter> = match event_num {
+            6 => Some(PartyInter::GlassShatter),
+            7 => Some(PartyInter::TechnicalDifficulties),
+            8 => Some(PartyInter::SpillPunch),
+            9 => Some(PartyInter::Heist(modifier_num)),
+            10 => Some(PartyInter::BrennanaPeel{x: modifier_num * modifier_num, y: modifier_num * event_num / 4}),
+            _ => None,
+        };
 
-/* User input for winning_score
- * Return: u8 (winning_score)
- */
-fn set_winning_score () -> u8 {
-    let mut winning_score = String::new();
-
-    io::stdin().read_line(&mut winning_score)
-    .expect("The input step failed");
-
-    const WINNING_SCORE: u8 = winning_score.parse().unwrap();
-
-    if 0 < WINNING_SCORE < 11 { // && TypeId::of::winning_score == TypeId::of::<u8>()
-        println!("First to {} wins!", WINNING_SCORE);
-
-        return WINNING_SCORE;
-    } else {
-        println!("That value doesn't work. Please make sure your winning score is 1-10 and is an integer:");
-
-        return set_winning_score();
+        event
     }
 }
 
-fn is_legal_move (move) -> bool {
+mod tick_tac_toe {
+    use std::io;
+    use std::collections::HashMap;
 
-}
+    pub fn main(is_xplayer_move: bool, mut spaces: HashMap<&str, &str>) {
+        let mut user_move = String::new();
 
-/* Updates and returns score
- * Return: () (score of player O, score of player X)
- */
-fn check_for_point (tile_positions, pO_score, pX_score, is_pX_turn) -> () {
-    match is_pX_turn {
-        true => {
-            if tile_positions.x_upper[0] == "A" {
-                pX_score += 1
+        io::stdin().read_line(&mut user_move)
+        .expect("Didn't read anything");
 
-            } else if tile_positions.x_lower[0] == "A"{
+        let user_move: &str = &user_move[0..2];
 
+        if is_legal_move(user_move, &spaces) {
+            update_board(user_move, &mut spaces, is_xplayer_move);
+            print_board(&spaces);
+
+            let (player_win, board_full) = is_player_win_is_full_board(&spaces);
+
+            if player_win {
+                match is_xplayer_move {
+                    true => println!("Well done player X. You have won the game"),
+                    false => println!("Well done player O. You have won the game"),
+                }
+                return;
             }
-        },
-        false => {
-            if tile_positions.o_upper[0] == "D" || tile_positions.o_lower[0] == "D" {
-                pO_score += 1
+            else if board_full {
+                println!("Looks like nobody won. Let's go for a another round");
+
+                let mut spaces: HashMap<&str, &str> = HashMap::new();
+
+                main(true, spaces);
             }
-        },
+            else {
+                main(!is_xplayer_move, spaces);
+            }
+        } else {
+            println!("Sorry, {} is occupied or else unavailable. Please go again", user_move);
+            main(is_xplayer_move, spaces);
+        }
     }
-    return (pO_score, pX_score)
-}
 
-fn update_tile_pos (move, tile_positions) -> struct {
+    fn is_legal_move(user_move: &str, spaces: &HashMap<&str, &str>) -> bool {
+        if let Some(b) = spaces.get(user_move) {
+            let b = *b;
 
-}
+            if b == " " {
+                return true;
 
+            } else if b == "x" || b == "o" {
+                println!("{} is already taken by an {} tile. Please try again", user_move, b);
+                return false;
 
-fn print_map (tile_positions) {
+            } else {
+                println!("Something went wrong @ is_legal_move: {}", b);
+                return false;
+            }
 
-}
-
-/* Prints win and returns true if restart is chosen
- * Return: bool (true for game restart)
- */
-fn announce_win_and_reset (pO_score, pX_score) -> bool {
-    if pO_score == winning_score && pX_score != winning_score {
-        println!("Player O wins with a score of {}", winning_score);
-    } else if pX_score == winning_score && pX_score != winning_score{
-        println!("Player X wins with a score of {}", winning_score);
-    } else {
-        println!("Sorry, however something errored out");
-        println!("Try restarting the game file with Ctrl + C");
+        }
+        else {
+            return false;
+        }
     }
-    // delay
-    let play_again: bool = false;
 
-    // Let player select yes or no
+    fn update_board(user_move: &str, spaces: &mut HashMap<&str, &str>, is_xplayer_move: bool) {
+        if is_xplayer_move {
+            match user_move {
+                "a1" => spaces.insert("a1", "x"),
+                "b1" => spaces.insert("b1", "x"),
+                "c1" => spaces.insert("c1", "x"),
+                "a2" => spaces.insert("a2", "x"),
+                "b2" => spaces.insert("b2", "x"),
+                "c2" => spaces.insert("c2", "x"),
+                "a3" => spaces.insert("a3", "x"),
+                "b3" => spaces.insert("b3", "x"),
+                "c3" => spaces.insert("c3", "x"),
+                _ => spaces.insert("", " "),
+            };
+        } else if !is_xplayer_move {
+            match user_move {
+                "a1" => spaces.insert("a1", "o"),
+                "b1" => spaces.insert("b1", "o"),
+                "c1" => spaces.insert("c1", "o"),
+                "a2" => spaces.insert("a2", "o"),
+                "b2" => spaces.insert("b2", "o"),
+                "c2" => spaces.insert("c2", "o"),
+                "a3" => spaces.insert("a3", "o"),
+                "b3" => spaces.insert("b3", "o"),
+                "c3" => spaces.insert("c3", "o"),
+                _ => spaces.insert("", " "),
+            };
+        } else {
+            println!("Error @ update_board()");
+        }
+    }
 
-    return play_again
+    fn print_board(spaces: &HashMap<&str, &str>) {
+        let [a1, b1, c1, a2, b2, c2, a3, b3, c3] = deconst_tiles(spaces);
+
+        println!("");
+        println!("      A   B   C");
+        println!("   1  {} | {} | {}", a1, b1, c1);
+        println!("   2  {} | {} | {}", a2, b2, c2);
+        println!("   3  {} | {} | {}", a3, b3, c3);
+        println!("");
+
+    }
+
+    fn is_player_win_is_full_board(spaces: &HashMap<&str, &str>) -> (bool, bool) {
+        let [a1, b1, c1, a2, b2, c2, a3, b3, c3] = deconst_tiles(spaces);
+
+        // println!("{}", a1);
+        // println!("{}", b1);
+        // println!("{}", c1);
+        // println!("{}", a2);
+        // println!("{}", b2);
+        // println!("{}", c2);
+        // println!("{}", a3);
+        // println!("{}", b3);
+        // println!("{}", c3);
+
+        let blk_srg = " ".to_string();
+
+        if (b1 != blk_srg) && ((a1 == b1) && ((a1 == c1) && (b1 == c1))) // rows
+        || (b2 != blk_srg) && ((a2 == b2) && ((a2 == c2) && (b2 == c2)))
+        || (b3 != blk_srg) && ((a3 == b3) && ((a3 == c3) && (b3 == c3)))
+        || (a2 != blk_srg) && ((a1 == a2) && ((a1 == a3) && (a2 == a3))) // columns
+        || (b2 != blk_srg) && ((b1 == b2) && ((b1 == b3) && (b2 == b3)))
+        || (c2 != blk_srg) && ((c1 == c2) && ((c1 == c3) && (c2 == c3)))
+        || (b2 != blk_srg) && ((a1 == b2) && ((a1 == c3) && (b2 == c3))) // diagonal
+        || (b2 != blk_srg) && ((c1 == b2) && ((c1 == a3) && (b2 == a3))) { return (true, false); }
+
+        else if a1 != " "
+             && b1 != " "
+             && c1 != " "
+             && a2 != " "
+             && b2 != " "
+             && c2 != " "
+             && a3 != " "
+             && b3 != " "
+             && c3 != " "{ return (false, true); }
+
+        else { return (false, false); }
+
+    }
+
+    fn deconst_tiles(spaces: &HashMap<&str, &str>) -> [String; 9] {
+        let mut all_tiles: [String; 9] = ["".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string()];
+
+        let array_tile_spaces = ["a1", "b1", "c1", "a2", "b2", "c2", "a3", "b3", "c3"];
+
+        let mut iter_count = 0;
+
+        for tile in array_tile_spaces.iter() {
+            if spaces.contains_key(tile) {
+                let s = *spaces.get(tile).unwrap();
+
+                all_tiles[iter_count] = s.to_string();
+
+            } else {
+                all_tiles[iter_count] = " ".to_owned();
+            }
+
+            iter_count += 1;
+        }
+
+        all_tiles
+    }
 }
 
 
+fn main() {
+    use std::collections::HashMap;
 
-//             Rules of --- with graphics
-//
-//    Starting layout
-//             -----------------
-//             |   | O |   | o |
-//             |   |   |   |   |
-//             |   |   |   |   |
-//             | X |   | x |   |
-//             -----------------
-//
-//    Possible moves for O (shown with o)
-//             -----------------
-//             | o | o | o |   |
-//             | o | O | o |   | (O can move 1 tile in
-//             | o | o | o |   |  any direction)
-//             |   |   |   |   |
-//             -----------------
-//
-//    Blocking- Can't move on enemy tile's space
-//             -----------------
-//             | o | o | o |   |
-//             | o | O | o |   | (O cannot move on the
-//             | o | X | o |   |  same tile as the X)
-//             |   |   |   |   |
-//             -----------------
-//
-//    Move exception- Last row of enemy line diagonal
-//             -----------------
-//             |   |   |   |   |
-//             |   | o | o | o |
-//             |   | o | O | o |
-//             |   |   | X |   | (O can't move diagonally
-//             -----------------  beside X, in last row)
-//
-//    Attack move- One of a team on both x and y axis
-//             -----------------
-//             |   |   |   |   | (Since there's an "x"
-//             |   |   |   |   |  tile in the same row
-//             |   | X | O |   |  as O, and an "x" in
-//             |   |   | x |   |  the same column, O
-//             -----------------  will respawn)
-//
-//    Gaining a point- get a tile into opposing end row
-//             -----------------
-//             |   |   |   |   | (O spawned in top row)
-//             |   |   |   |   | (When O moves into the
-//             |   |   |   |   |  bottom row, tile O
-//             | O |   | x |   |  will respawn and
-//             -----------------  player O gets +1 point)
-//
-//    Respawning- Top left for O and bottom right for X
-//             -----------------
-//             | O |   |   |   | (Tile O respawns in the
-//             |   |   |   |   |  first spot available
-//             |   | X |   |   |  from the top left going
-//             |   |   | x |   |  right)
-//             -----------------
-//
-//    Winning- Achieve the winning number of points
-//             Default is 2
+    let mut spaces: HashMap<&str, &str> = HashMap::new();
+    {
+        spaces.insert("a1", " ");
+        spaces.insert("b1", " ");
+        spaces.insert("c1", " ");
+        spaces.insert("a2", " ");
+        spaces.insert("b2", " ");
+        spaces.insert("c2", " ");
+        spaces.insert("a3", " ");
+        spaces.insert("b3", " ");
+        spaces.insert("c3", " ");
+    }
+
+    tick_tac_toe::main(true, spaces);
+    println!(" ")
+}
