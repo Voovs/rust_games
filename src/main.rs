@@ -55,6 +55,9 @@ mod party_events {
     }
 }
 
+#[allow(dead_code)]
+#[allow(unused_mut)]
+#[allow(unused_imports)]
 mod tick_tac_toe {
     use std::io;
     use std::collections::HashMap;
@@ -84,6 +87,17 @@ mod tick_tac_toe {
                 println!("Looks like nobody won. Let's go for a another round");
 
                 let mut spaces: HashMap<&str, &str> = HashMap::new();
+                {
+                    spaces.insert("a1", " ");
+                    spaces.insert("b1", " ");
+                    spaces.insert("c1", " ");
+                    spaces.insert("a2", " ");
+                    spaces.insert("b2", " ");
+                    spaces.insert("c2", " ");
+                    spaces.insert("a3", " ");
+                    spaces.insert("b3", " ");
+                    spaces.insert("c3", " ");
+                }
 
                 main(true, spaces);
             }
@@ -224,6 +238,19 @@ mod tick_tac_toe {
     }
 }
 
+#[allow(dead_code)]
+#[allow(unused_mut)]
+#[allow(unused_imports)]
+mod battle_ship;
+
+#[allow(dead_code)]
+mod rock_paper_scissors {
+
+}
+#[allow(dead_code)]
+mod tiles_game {
+
+}
 
 fn main() {
     use std::collections::HashMap;
@@ -241,6 +268,7 @@ fn main() {
         spaces.insert("c3", " ");
     }
 
-    tick_tac_toe::main(true, spaces);
+    battle_ship::main();
+    // tick_tac_toe::main(true, spaces);
     println!(" ")
 }
