@@ -9,10 +9,24 @@ pub fn main() {
   let mut p2_guesses = [[" "; 6]; 6];
 
   setup::ready_ships_and_intro(&mut p1_ships, &mut p2_ships);
+
+  let mut is_p1_turn = true;
+
+  while !is_win() {
+      if is_p1_turn {
+          run_game::player_move(&mut p1_guesses, &mut p2_ships);
+
+      }
+      else {
+          run_game::player_move(&mut p2_guesses, &mut p1_ships);
+
+      }
+      is_p1_turn = !is_p1_turn;
+  }
 }
 
 mod reuse {
-    pub fn print_map(grid: &[[usize; 6]; 6]) {
+    pub fn print_ship_map(grid: &[[usize; 6]; 6]) {
         let mut g = [[" "; 6]; 6];
 
         for column in 0..6 {
@@ -22,7 +36,7 @@ mod reuse {
                     2 => "2",
                     3 => "3",
                     4 => "4",
-                    _ => panic!("Match catch fired @ print_map()"),
+                    _ => panic!("Match catch fired @ print_ship_map()"),
                 }
             }
         }
@@ -37,6 +51,70 @@ mod reuse {
         println!("  6  {} | {} | {} | {} | {} | {}", g[0][5], g[1][5], g[2][5], g[3][5], g[4][5], g[5][5]);
         println!("");
     }
+    pub fn print_guess_map(grid: &[[str; 6]; 6]) {
+        let g = grid;
+
+        println!("");
+        println!("     A   B   C   D   E   F");
+        println!("  1  {} | {} | {} | {} | {} | {}", g[0][0], g[1][0], g[2][0], g[3][0], g[4][0], g[5][0]);
+        println!("  2  {} | {} | {} | {} | {} | {}", g[0][1], g[1][1], g[2][1], g[3][1], g[4][1], g[5][1]);
+        println!("  3  {} | {} | {} | {} | {} | {}", g[0][2], g[1][2], g[2][2], g[3][2], g[4][2], g[5][2]);
+        println!("  4  {} | {} | {} | {} | {} | {}", g[0][3], g[1][3], g[2][3], g[3][3], g[4][3], g[5][3]);
+        println!("  5  {} | {} | {} | {} | {} | {}", g[0][4], g[1][4], g[2][4], g[3][4], g[4][4], g[5][4]);
+        println!("  6  {} | {} | {} | {} | {} | {}", g[0][5], g[1][5], g[2][5], g[3][5], g[4][5], g[5][5]);
+        println!("");
+    }
+    // pub fn is_win(grid: &[[usize; 6]; 6]) -> bool {
+    //     for column in grid {
+    //         for row in column {
+    //             if grid[column][row] == 0 { continue; }
+    //             else { return false; }
+    //         }
+    //     }
+    //
+    //     true
+    // }
+    pub fn move_to_point_success(p_move: &String) -> Option<(usize, usize)> {
+        // Prevents slice panic on insufficient user input string length
+        if p_move.len() < 11 { return None; }
+
+        let column = &p_move[0..1];
+        let row = &p_move[1..2];
+
+        let row_num = match row {
+            "1" => row.parse::<usize>().unwrap(),
+            "2" => row.parse::<usize>().unwrap(),
+            "3" => row.parse::<usize>().unwrap(),
+            "4" => row.parse::<usize>().unwrap(),
+            "5" => row.parse::<usize>().unwrap(),
+            "6" => row.parse::<usize>().unwrap(),
+            _ => { return None; },
+        };
+
+        // let row_num = row.parse::<usize>().unwrap();
+        if !(0 < row_num && row_num < 7) { return None; }
+
+        let column_num: usize = match column {
+            "a" => 1,
+            "b" => 2,
+            "c" => 3,
+            "d" => 4,
+            "e" => 5,
+            "f" => 6,
+            _  => { return None; },
+        };
+
+        Some((column_num, row_num))
+    }
+    pub fn slice_off_last_char(string: &String) -> String {
+          let string = &string[..(string.len() - 1)].to_string();
+
+          string.to_string();
+
+          // let string = *string;
+
+          string.to_owned()
+        }
 }
 
 mod setup {
@@ -53,7 +131,7 @@ mod setup {
 
                 user_place_ships(&mut p1_ships);
 
-                super::reuse::print_map(&p1_ships);
+                super::reuse::print_ship_map(&p1_ships);
 
                 println!("Player 1's ships have been placed");
             }
@@ -64,7 +142,7 @@ mod setup {
 
                 user_place_ships(&mut p2_ships);
 
-                super::reuse::print_map(&p2_ships);
+                super::reuse::print_ship_map(&p2_ships);
 
                 println!("Player 2's ships have been placed");
             }
@@ -77,7 +155,7 @@ mod setup {
         let mut ship_3_place = String::new();
         let mut ship_4_place = String::new();
 
-        super::reuse::print_map(&p_ships);
+        super::reuse::print_ship_map(&p_ships);
 
         loop {
             ship_2_place = String::new();
@@ -87,11 +165,11 @@ mod setup {
             io::stdin().read_line(&mut ship_2_place)
             .expect("Didn't read anything");
 
-            ship_2_place = slice_off_last_char(&ship_2_place);
+            ship_2_place = super::reuse::slice_off_last_char(&ship_2_place);
 
             if place_ships_success(&mut p_ships, &ship_2_place, 2) { break; }
         }
-        super::reuse::print_map(&p_ships);
+        super::reuse::print_ship_map(&p_ships);
 
         loop {
             ship_3_place = String::new();
@@ -101,11 +179,11 @@ mod setup {
             io::stdin().read_line(&mut ship_3_place)
             .expect("Didn't read anything");
 
-            ship_3_place = slice_off_last_char(&ship_3_place);
+            ship_3_place = super::reuse::slice_off_last_char(&ship_3_place);
 
             if place_ships_success(&mut p_ships, &ship_3_place, 3) { break; }
         }
-        super::reuse::print_map(&p_ships);
+        super::reuse::print_ship_map(&p_ships);
 
         loop {
             ship_4_place = String::new();
@@ -115,11 +193,11 @@ mod setup {
             io::stdin().read_line(&mut ship_4_place)
             .expect("Didn't read anything");
 
-            ship_4_place = slice_off_last_char(&ship_4_place);
+            ship_4_place = super::reuse::slice_off_last_char(&ship_4_place);
 
             if place_ships_success(&mut p_ships, &ship_4_place, 4) { break; }
         }
-        super::reuse::print_map(&p_ships);
+        super::reuse::print_ship_map(&p_ships);
 
 
         println!("Well done. All your ships are now set");
@@ -138,10 +216,14 @@ mod setup {
         }
 
         let direction = &p_move[3..];
-        let (column_num, row_num) = user_move_point(p_move);
 
-        // Handles failed move to point conversion
-        if column_num == 0 || row_num == 0 {
+        let mut column_num: usize;
+        let mut row_num: usize;
+
+        if let Some((c, r)) = super::reuse::move_to_point_success(p_move){
+            column_num = c;
+            row_num = r;
+        } else {
             println!("That's not a row or column on the grid. Please use a-f and 1-6 for coordinates");
             println!("");
             return false;
@@ -199,7 +281,14 @@ mod setup {
         -> bool {
             if !(is_valid_move(&p_move, ship_len, &grid)) { return false; }
 
-            let (column_num, row_num) = user_move_point(&p_move);
+            let mut column_num: usize;
+            let mut row_num: usize;
+
+            if let Some((c, r)) = super::reuse::move_to_point_success(&p_move) {
+                column_num = c;
+                row_num = r;
+            } else { return false; }
+
             let (column_num, row_num) = (column_num - 1, row_num - 1);
 
             let direction = &p_move[3..];
@@ -227,51 +316,125 @@ mod setup {
 
             true
         }
+}
 
-    fn user_move_point(p_move: &String) -> (usize, usize) {
-        // Prevents slice panic on insufficient user input string length
-        if p_move.len() < 11 { return (0, 0); }
+mod run_game {
+    use std::io;
 
-        let column = &p_move[0..1];
-        let row = &p_move[1..2];
+    pub fn player_move(
+        guess_grid: &mut [[str; 6]; 6],
+        target_grid: &mut [[usize; 6]; 6])
+        -> () {
+            let (column_num, row_num) = get_player_input_point();
+            let (column, row) = (column_num - 1, row_num - 1);
 
-        let row_num = match row {
-            "1" => row.parse::<usize>().unwrap(),
-            "2" => row.parse::<usize>().unwrap(),
-            "3" => row.parse::<usize>().unwrap(),
-            "4" => row.parse::<usize>().unwrap(),
-            "5" => row.parse::<usize>().unwrap(),
-            "6" => row.parse::<usize>().unwrap(),
-            _ => { return (0, 0); },
-        };
+            if target_grid[column][row] != 0 {
+                guess_grid[column][row] = "X";
 
-        // let row_num = row.parse::<usize>().unwrap();
-        if !(0 < row_num && row_num < 7) { return (0, 0); }
+                super::reuse::print_guess_map(&guess_grid);
 
-        let column_num: usize = match column {
-            "a" => 1,
-            "b" => 2,
-            "c" => 3,
-            "d" => 4,
-            "e" => 5,
-            "f" => 6,
-            _  => { return (0, 0); },
-        };
+                update_target_grid(&mut target_grid, (column, row));
 
-        (column_num, row_num)
+            } else {
+                guess_grid[column][row] = "O";
+                println!("You missed");
+            }
     }
 
-    fn slice_off_last_char(string: &String) -> String {
-      let string = &string[..(string.len() - 1)].to_string();
+    fn get_player_input_point() -> (usize, usize) {
+        let mut player_input = String::new();
 
-      string.to_string();
+        let mut column: usize;
+        let mut row: usize;
 
-      // let string = *string;
+        loop {
+            player_input = String::new();
 
-      string.to_owned()
+            io.stdin().read_line(&mut player_input)
+            .expect("Didn't read line");
+
+            if player_input.len() == 2 {
+                player_input = super::reuse::slice_off_last_char(&player_input);
+            } else {
+                println!("That's not a valid point. Use values a-f and 1-6. Ex: a3");
+                continue;
+            }
+
+            if is_valid_target(&player_move) { break; }
+        }
+
+        if let Some((c, r)) = super::reuse::move_to_point_success(&player_input) {
+            return (c, r);
+        } else {
+            panic!("Else on if let @ get_player_input_point()");
+        }
+    }
+
+    fn is_valid_target(input: &String) -> bool {
+        if input.len() < 2 {
+            println!("An input is at least 2 characters. Ex: a3");
+            return false;
+        }
+
+        if let Some((c, r)) = super::reuse::move_to_point_success(input) {
+            return true;
+        } else {
+            println!("That's not a value on the grid. Please use a-f and 1-6. Ex: a3");
+            return false;
+        }
+    }
+
+    fn update_target_grid(
+        grid :&mut [[usize; 6]; 6],
+        point: (usize, usize))
+        -> () {
+        let (c, r) = point;
+
+        let ship_num = grid[c][r];
+
+        if ship_num == 0 { panic!("Ship num is 0 @ update_target_grid()"); }
+
+        grid[c][r] = 0;
+
+        for column in grid {
+            for row in column {
+                if grid[column][row] == ship_num {
+                    return;
+                }
+            }
+        }
+
+        println!("Ship {} had been sunk", ship_num);
     }
 }
 
+mod finish {
+    pub fn is_win(
+        p1_grid: &[[usize; 6]; 6],
+        p2_grid: &[[usize; 6]; 6])
+        -> bool {
+
+        'p1_win: for column in p1_grid {
+            for row in column {
+                if p1_grid[column][row] != 0 {
+                    break 'p1 win;
+                }
+            }
+            if column == 5 { return true; }
+        }
+
+        'p2_win: for column in p2_grid {
+            for row in column {
+                if p2_grid[column][row] != 0 {
+                    break 'p2_win;
+                }
+            }
+            if column == 5 { return true; }
+        }
+
+        false
+    }
+}
 
 
 
