@@ -14,6 +14,8 @@ pub fn main() {
 
   while !finish::is_win(&p1_ships, &p2_ships) {
       if is_p1_turn {
+          reuse::pause_for_handoff("Hit enter and pass to player 1");
+
           println!("");
           println!("Player 1, it's your turn to shoot");
           println!("Your previous guesses:");
@@ -22,9 +24,10 @@ pub fn main() {
 
           run_game::player_move(&mut p1_guesses, &mut p2_ships);
 
-          reuse::pause_for_handoff("Hit enter and pass to player 2");
       }
       else {
+          reuse::pause_for_handoff("Hit enter and pass to player 2");
+
           println!("");
           println!("Player 2, it's your turn to shoot");
           println!("Your previous guesses:");
@@ -33,7 +36,6 @@ pub fn main() {
 
           run_game::player_move(&mut p2_guesses, &mut p1_ships);
 
-          reuse::pause_for_handoff("Hit enter and pass to player 1");
       }
       is_p1_turn = !is_p1_turn;
   }
@@ -152,7 +154,6 @@ mod setup {
         mut p2_ships: &mut [[usize; 6]; 6])
         -> () {
             {
-                // print!("{}[2J", 27 as char); // Clears cmd screen
                 println!("It's player 1's turn. Get ready to place your ships");
                 println!("Valid syntax is (a-f)(1-6) (v or h). Ex: a3 v");
                 println!("");
@@ -165,7 +166,6 @@ mod setup {
                 super::reuse::pause_for_handoff("Press enter and hand off to player 2, to continue");
             }
             {
-                // print!("{}[2J", 27 as char); // Clears cmd screen
                 println!("It's player 2's turn. Get ready to place your ships");
                 println!("");
 
@@ -174,11 +174,11 @@ mod setup {
                 super::reuse::print_ship_map(&p2_ships);
 
                 println!("Player 2, your ships have been placed");
-                super::reuse::pause_for_handoff("Press enter and hand off to player 1, to continue");
             }
 
-
+        println!("");
         println!("All ships are now placed. \"The game is on\" — Sherlock");
+        println!("");
     }
 
     #[allow(unused_assignments)]
@@ -483,21 +483,19 @@ mod finish {
         'win_p_num: for column in 0..6 {
             for row in 0..6 {
                 if p1_ships[column][row] != 0 {
-                    println!("P_1 win on column: {} | row: {}", column, row);
                     win_player_num = '1';
                     lose_player_num = '2';
                     break 'win_p_num;
                 }
             }
             if column == 5 {
-                println!("P_2 win on column: {}", column);
                 win_player_num = '2';
                 lose_player_num = '1';
             }
         }
 
 
-        println!("Well done player {}! Your skills, with absolutely no luck, have allowed you to shoot down all player {} ships. You can now relax, after these potent graphics have left nothing to the imagination", win_player_num, lose_player_num);
+        println!("Well done player {}! Your skills, with absolutely no luck, have allowed you to shoot down all player {}'s ships. You can now relax, after these potent graphics have left nothing to the imagination", win_player_num, lose_player_num);
         pause_no_handoff();
 
         println!("Here are your final fields");
