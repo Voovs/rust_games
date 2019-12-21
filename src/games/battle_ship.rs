@@ -1,6 +1,5 @@
 use std::io;
 
-#[allow(dead_code)]
 #[allow(unused_variables)]
 pub fn main() {
   let mut p1_ships = [[0; 6]; 6];
