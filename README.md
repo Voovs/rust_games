@@ -3,4 +3,5 @@ A collection of small games, made to be played on Terminal/Shell/Command line, w
 
 ## Ready to play:
 - 2 player battleship
+- 2 player tic tac toe
 
