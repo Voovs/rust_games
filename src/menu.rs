@@ -11,24 +11,7 @@ pub fn select_game() {
 
     match message.interact().unwrap() {
         0 => games::battle_ship::main(),
-        1 => {
-            use std::collections::HashMap;
-
-            let mut spaces: HashMap<&str, &str> = HashMap::new();
-            {
-                spaces.insert("a1", " ");
-                spaces.insert("b1", " ");
-                spaces.insert("c1", " ");
-                spaces.insert("a2", " ");
-                spaces.insert("b2", " ");
-                spaces.insert("c2", " ");
-                spaces.insert("a3", " ");
-                spaces.insert("b3", " ");
-                spaces.insert("c3", " ");
-            }
-
-            games::tic_tac_toe::main(true, spaces);
-        },
+        1 => games::tic_tac_toe::main(),
         _ => panic!("match in menu.rs @select_game() fired"),
     }
 }
