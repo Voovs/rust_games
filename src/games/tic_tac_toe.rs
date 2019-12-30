@@ -1,4 +1,3 @@
-#[allow(non_snake_case)]
 pub fn main() {
     let mut grid = [[0; 3]; 3];
 
@@ -17,8 +16,6 @@ pub fn main() {
     }
 }
 
-#[allow(non_snake_case)]
-#[allow(unused_assignments)]
 fn player_move(mut grid: &mut [[usize; 3]; 3], is_pX_turn: bool) {
     use std::io;
 
@@ -112,7 +109,6 @@ fn move_to_point(user_move: &String) -> (usize, usize) {
     (column, row)
 }
 
-#[allow(non_snake_case)]
 fn update_grid(
     mut grid: &mut [[usize; 3]; 3],
     user_move: &String,
@@ -151,7 +147,6 @@ fn print_grid(grid: &[[usize; 3]; 3]) {
 
 }
 
-#[allow(non_snake_case)]
 fn annouce_win(is_pX_turn: bool, grid: &[[usize; 3]; 3]) {
     let winning_player = match is_pX_turn {
         true => "X",

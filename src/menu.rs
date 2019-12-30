@@ -8,10 +8,12 @@ pub fn select_game() {
 
     message.item("battle_ship");
     message.item("tic tac toe");
+    message.item("hang_man");
 
     match message.interact().unwrap() {
         0 => games::battle_ship::main(),
         1 => games::tic_tac_toe::main(),
+        2 => games::hang_man::main(),
         _ => panic!("match in menu.rs @select_game() fired"),
     }
 }

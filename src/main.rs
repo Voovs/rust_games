@@ -62,6 +62,10 @@ mod games;
 #[allow(unreachable_code)]
 mod menu;
 
+#[cfg(test)]
+mod tests;
+
+
 fn main() {
     loop {
         menu::select_game();

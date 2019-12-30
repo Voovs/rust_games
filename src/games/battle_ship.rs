@@ -1,18 +1,18 @@
 use std::io;
 
-#[allow(unused_variables)]
+
 pub fn main() {
-  let mut p1_ships = [[0; 6]; 6];
-  let mut p2_ships = [[0; 6]; 6];
-  let mut p1_guesses = [[' '; 6]; 6];
-  let mut p2_guesses = [[' '; 6]; 6];
+    let mut p1_ships = [[0; 6]; 6];
+    let mut p2_ships = [[0; 6]; 6];
+    let mut p1_guesses = [[' '; 6]; 6];
+    let mut p2_guesses = [[' '; 6]; 6];
 
-  setup::ready_ships_and_intro(&mut p1_ships, &mut p2_ships);
+    setup::ready_ships_and_intro(&mut p1_ships, &mut p2_ships);
 
-  let mut is_p1_turn = true;
+    let mut is_p1_turn = true;
 
-  while !finish::is_win(&p1_ships, &p2_ships) {
-      if is_p1_turn {
+    while !finish::is_win(&p1_ships, &p2_ships) {
+        if is_p1_turn {
           reuse::pause_for_handoff("Hit enter and pass to player 1");
 
           println!("");
@@ -23,8 +23,8 @@ pub fn main() {
 
           run_game::player_move(&mut p1_guesses, &mut p2_ships);
 
-      }
-      else {
+        }
+        else {
           reuse::pause_for_handoff("Hit enter and pass to player 2");
 
           println!("");
@@ -35,11 +35,11 @@ pub fn main() {
 
           run_game::player_move(&mut p2_guesses, &mut p1_ships);
 
-      }
-      is_p1_turn = !is_p1_turn;
-  }
+        }
+        is_p1_turn = !is_p1_turn;
+    }
 
-  finish::announce_win(&p1_ships, &p2_ships, &p1_guesses, &p2_guesses);
+    finish::announce_win(&p1_ships, &p2_ships, &p1_guesses, &p2_guesses);
 }
 
 mod reuse {
@@ -180,7 +180,6 @@ mod setup {
         println!("");
     }
 
-    #[allow(unused_assignments)]
     fn user_place_ships(mut p_ships: &mut [[usize; 6]; 6]) {
         let mut ship_2_place = String::new();
         let mut ship_3_place = String::new();
@@ -372,7 +371,6 @@ mod run_game {
         }
     }
 
-    #[allow(unused_assignments)]
     fn get_player_input_point(g_grid: &[[char; 6]; 6]) -> (usize, usize) {
         let mut player_input = String::new();
 
